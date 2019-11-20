@@ -1,24 +1,50 @@
 const contexts = ["selection"];
 
+let keys = {};
+
+const context = chrome.contextMenus.create({
+  title: "Paste Cover Letter",
+  contexts: ["editable"],
+  id: "paste"
+});
+
+const setValParent = chrome.contextMenus.create({
+  title: "Set value",
+  contexts: [contexts[0]],
+  id: "set"
+});
+
 function genericOnClick(info, tab) {
-  console.log("item " + info.menuItemId + " was clicked");
+  const {menuItemId, selectionText, parentMenuItemId} = info;
+  const {windowId, id} = tab;
+  // console.log("item " + info.menuItemId + " was clicked");
   console.log("info: " + JSON.stringify(info));
   console.log("tab: " + JSON.stringify(tab));
+
+  if (Object.keys(keys).includes(menuItemId)) {
+    keys[menuItemId] = selectionText;
+  } else {
+    console.log('hey')
+  }
+  console.log(keys)
 }
 
-// Create one test item for each context type.
-
-for (let i = 0; i < contexts.length; i++) {
-  let context = contexts[i];
-  let title = "Test '" + context + "' menu item";
-  let parent = chrome.contextMenus.create({
-    title: title,
-    contexts: [context],
-    id: contexts[i],
-  });
-  const child1 = chrome.contextMenus.create({
-    title: "Child 1",
-    parentId: parent,
-    id: `empName${parent}`
+function chromeStorageOperation(action, key, func) {
+  chrome.storage.sync[action](key, result => {
+    func(result);
   });
 }
+
+chromeStorageOperation("get", "keys", result => {
+  result.keys.forEach(key => {
+    keys[key] = null;
+    chrome.contextMenus.create({
+      title: key,
+      parentId: setValParent,
+      contexts: [contexts[0]],
+      id: key
+    });
+  });
+});
+
+chrome.contextMenus.onClicked.addListener(genericOnClick)

@@ -5,10 +5,23 @@
 "use strict";
 
 chrome.runtime.onInstalled.addListener(function() {
+  chrome.storage.sync.set(
+    {
+      keys: [
+        "Employer Name",
+        "Job Title",
+        "Flattery",
+        "Candidate Quality",
+        "Job d keyword"
+      ],
+      data: {
 
-  // chrome.storage.sync.set({ coverString: "", empName: '', empTitle: '', }, function() {
-  //   console.log("successfully installed!");
-  // });
+      }
+    },
+    function() {
+      console.log("data initialized!");
+    }
+  );
 });
 
 chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
@@ -26,5 +39,3 @@ chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     }
   ]);
 });
-
-
