@@ -4,6 +4,8 @@
 
 "use strict";
 
+//*******variables
+
 let keys = [
   "Employer Name",
   "Job Title",
@@ -11,6 +13,37 @@ let keys = [
   "Candidate Quality",
   "Job d keyword"
 ];
+const contexts = ["selection"];
+
+const context = chrome.contextMenus.create({
+  title: "Paste Cover Letter",
+  contexts: ["editable"],
+  id: "paste"
+});
+
+const setValParent = chrome.contextMenus.create({
+  title: "Set value",
+  contexts: [contexts[0]],
+  id: "set"
+});
+
+//******functions
+
+function chromeStorageOperation(action, key, func) {
+  chrome.storage.sync[action](key, result => {
+    func(result);
+  });
+}
+
+function genericContextMenuClick(info, tab) {
+  const { menuItemId, selectionText, parentMenuItemId } = info;
+  const { windowId, id } = tab;
+  console.log("item " + info.menuItemId + " was clicked");
+  console.log("info: " + JSON.stringify(info));
+  console.log("tab: " + JSON.stringify(tab));
+}
+
+//******listeners
 
 chrome.runtime.onInstalled.addListener(function() {
   chrome.storage.sync.set(
@@ -24,13 +57,17 @@ chrome.runtime.onInstalled.addListener(function() {
   );
 });
 
+chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
+  console.log("adfasdfasdfasdfa", req, sender);
+  sendResponse({ message: "message received, this is the response" });
+});
+
 chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
   chrome.declarativeContent.onPageChanged.addRules([
     {
       conditions: [
         new chrome.declarativeContent.PageStateMatcher({
           pageUrl: {
-            // hostEquals:
             schemes: ["http", "https"]
           }
         })
@@ -48,8 +85,8 @@ chrome.tabs.onCreated.addListener(tab => {
       [tab.id]: {}
     };
     for (let key in keys) {
-      let word = keys[key]
-      console.log(key)
+      let word = keys[key];
+      console.log(key);
       if (word === "Candidate Quality" || word === "Job d keyword") {
         newTabData[tab.id][word] = [];
       } else {
@@ -66,5 +103,19 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     delete newTabData[tabId];
 
     chrome.storage.sync.set({ tabData: newTabData });
+  });
+});
+
+chrome.contextMenus.onClicked.addListener(genericContextMenuClick);
+
+//*******exectue
+
+keys.forEach(key => {
+  // keys[key] = null;
+  chrome.contextMenus.create({
+    title: key,
+    parentId: setValParent,
+    contexts: [contexts[0]],
+    id: key
   });
 });

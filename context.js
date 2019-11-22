@@ -1,6 +1,7 @@
 const contexts = ["selection"];
-
-// let keys = {};
+// const port = chrome.runtime.connect({
+//   name: "initialize port"
+// });
 
 const context = chrome.contextMenus.create({
   title: "Paste Cover Letter",
@@ -23,17 +24,10 @@ function chromeStorageOperation(action, key, func) {
 function genericOnClick(info, tab) {
   const { menuItemId, selectionText, parentMenuItemId } = info;
   const { windowId, id } = tab;
-  // console.log("item " + info.menuItemId + " was clicked");
-  // console.log("info: " + JSON.stringify(info));
-  // console.log("tab: " + JSON.stringify(tab));
+  console.log("item " + info.menuItemId + " was clicked");
+  console.log("info: " + JSON.stringify(info));
+  console.log("tab: " + JSON.stringify(tab));
 
-  // if (Object.keys(keys).includes(menuItemId)) {
-  //   keys[menuItemId] = selectionText;
-  // } else {
-  //   console.log('hey')
-  // }
-  // console.log(keys)
-  // chromeStorageOperation('set', 'window')
 }
 
 keys.forEach(key => {
